@@ -280,7 +280,8 @@ def preprocessing_pop_data(hd_regions_path, rst_hd_regions_path, rst_wp_regions_
         "num_coarse_regions": final_num_coarse_regions,
         "cr_ids": fina_cr_ids,
         "geo_metadata": geo_metadata,
-        "id_to_gr_id": id_to_gr_id
+        "id_to_gr_id": id_to_gr_id,
+        "shapefile_path": hd_regions_path
     }
 
     with open(output_path, 'wb') as handle:

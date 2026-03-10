@@ -11,6 +11,7 @@ E:/fake-pomelo/pomelo_input_data/vnm/vnm_wpop_census.csv
 E:/fake-pomelo/pomelo_input_data/vnm/preprocessed_census_data_vnm.pkl 
 vnm 
 P_2019
+
 python E:/fake-pomelo/preprocessing_pop_data.py E:/fake-pomelo/pomelo_input_data/VNM/vnm_humdata_regions_shapefile/vnm_humdata_regions.shp E:/fake-pomelo/pomelo_input_data/VNM/vnm_humdata_regions.tif E:/fake-pomelo/pomelo_input_data/VNM/vnm_wpop_regions.tif E:/fake-pomelo/pomelo_input_data/VNM/vnm_wpop_census.csv E:/fake-pomelo/pomelo_input_data/VNM/preprocessed_census_data_vnm.pkl vnm P_2019
 python superpixel_disagg_model.py -train vnm -train_lvl c -test vnm -wr 0.01 --dropout 0.4 -lstep 800 --validation_fold 0 -rs 42 -mm m --loss LogL1 --dataset_dir datasets --sampler custom --max_step 50000 --name vnm_fine_vfold0
 python superpixel_disagg_model.py 

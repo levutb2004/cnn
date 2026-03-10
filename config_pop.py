@@ -1,7 +1,7 @@
 import os
 
 # Define root path
-root_path = 'E:/fake-pomelo/pomelo_input_data/'
+root_path = 'F:/pomelo/fake-pomelo/pomelo_input_data/'
 # Input file definition
 input_paths = {
     "vnm": {
@@ -535,7 +535,7 @@ metadata = {
         "wp_covariates_no_data": 0,
         "hd_no_data": [0],
         "scale_maxar_to_google": None,
-        "preproc_data_path": f'{root_path}VNM/preprocessed_census_data_vnm.pkl',
+        "preproc_data_path": f'{root_path}VNM_Sample_18/preprocessed_census_data_vnm.pkl',
         "rst_wp_regions_path": f'{root_path}VNM/vnm_wpop_regions.tif'
     },
     "tza": {

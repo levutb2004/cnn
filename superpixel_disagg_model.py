@@ -46,6 +46,7 @@ def get_dataset(dataset_name, params, building_features, related_building_featur
     num_coarse_regions = pdata["num_coarse_regions"]
     geo_metadata = pdata["geo_metadata"]
     areas = pdata["areas"]
+    shapefile_path = pdata["shapefile_path"]
     print(rst_wp_regions_path)
     fine_regions = gdal.Open(rst_wp_regions_path).ReadAsArray().astype(np.uint32)
     wp_ids = list(np.unique(fine_regions)) 
@@ -184,6 +185,7 @@ def get_dataset(dataset_name, params, building_features, related_building_featur
         "num_valid_pix": valid_data_mask.sum(),
         "fine": "fine",
         "coarse": "coarse",
+        "shapefile_path": shapefile_path
     }
     print('got ' + dataset_name)
     return dataset
@@ -284,6 +286,7 @@ def superpixel_with_pix_data(
     memory_mode,
     log_step,
     random_seed,
+    custom_split,
     validation_split,
     validation_fold,
     weights,
@@ -341,6 +344,7 @@ def superpixel_with_pix_data(
             'input_variables': list(cfg.input_paths[train_dataset_name[0]].keys()),
             'memory_mode': memory_mode,
             'random_seed': random_seed,
+            'custom_split': custom_split,
             'validation_split': validation_split,
             'validation_fold': validation_fold,
             'weights': weights,
@@ -397,7 +401,7 @@ def superpixel_with_pix_data(
     params["memory_mode"] = pad_list(params["memory_mode"], fill='d', target_len=len(all_dataset_names))    
     params["weights"] = pad_list(params["weights"], fill=1., target_len=len(all_dataset_names))    
     params["custom_sampler_weights"] = pad_list(params["custom_sampler_weights"], fill=1., target_len=len(all_dataset_names))    
-
+    shapefile_path = ''
     for i,ds in enumerate(all_dataset_names):
         this_level = train_level[i]
 
@@ -408,12 +412,14 @@ def superpixel_with_pix_data(
         eval_disag_filename = f"{dataset_dir}/{ds}/disag_vars.pkl"
         parent_dir = f"{dataset_dir}/{ds}/"
         print("h5_filename", h5_filename)
+        
 
         if not (os.path.isfile(h5_filename) and os.path.isfile(train_var_filename_f) and os.path.isfile(train_var_filename_c) \
             and os.path.isfile(eval_var_filename) and os.path.isfile(eval_disag_filename)):
             Path(parent_dir).mkdir(parents=True, exist_ok=True)
 
             this_dataset = get_dataset(ds, params, building_features, related_building_features) 
+            shapefile_path = this_dataset['shapefile_path']
             prep_train_hdf5_file(build_variable_list(this_dataset, fine_train_source_vars), h5_filename, train_var_filename_f, silent_mode=silent_mode)
             prep_train_hdf5_file(build_variable_list(this_dataset, cr_train_source_vars), h5_filename, train_var_filename_c, silent_mode=silent_mode)
             
@@ -427,7 +433,7 @@ def superpixel_with_pix_data(
             del this_dataset 
 
         datalocations[ds] = {"features": h5_filename, "train_vars_f": train_var_filename_f, "train_vars_c": train_var_filename_c,
-            "eval_vars": eval_var_filename, "disag": eval_disag_filename}
+            "eval_vars": eval_var_filename, "disag": eval_disag_filename, 'shapefile_path': shapefile_path}
 
     if eval_5fold is None and eval_model is None:
         res, log_dict = PixAdminTransform(
@@ -581,6 +587,7 @@ def main():
     parser.add_argument("--log_step", "-lstep", type=float, default=2000, help="Evealuate the model after 'logstep' batchiterations.")
     parser.add_argument("--max_step", "-mstep", type=float, default=np.inf, help="Evealuate the model after 'logstep' batchiterations.")
 
+    parser.add_argument("--custom_split", "-custom", type=bool, default=False, help="Custom split data")
     parser.add_argument("--validation_split", "-vs", type=float, default=0.2, help="Evaluate the model after 'logstep' batchiterations.")
     parser.add_argument("--validation_fold", "-fold", type=int, default=None, help="Validation fold. One of [0,1,2,3,4]. When used --validation_split is ignored.")
     parser.add_argument("--random_seed", "-rs", type=int, default=1610, help="Random seed for this run. This does not (!) affect the random split of the validation/heldout/test-fold.")
@@ -646,7 +653,7 @@ def main():
             except:
                 pass # Was already closed
 
-    superpixel_with_pix_data( 
+    superpixel_with_pix_data(
         args.train_dataset_name,
         args.train_level,
         args.test_dataset_name,
@@ -658,6 +665,7 @@ def main():
         args.memory_mode,
         args.log_step,
         args.random_seed,
+        args.custom_split,
         args.validation_split,
         args.validation_fold,
         args.train_weight,

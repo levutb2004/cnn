@@ -20,6 +20,7 @@ import psutil
 import os
 import pdb
 import config_pop as cfg
+import geopandas as gpd
 
 def get_properties_dict(data_dict_orig):
     data_dict = []
@@ -435,8 +436,8 @@ class PatchDataset(torch.utils.data.Dataset):
 
 class MultiPatchDataset(torch.utils.data.Dataset):
     """Patch dataset."""
-    def __init__(self, datalocations, train_dataset_name, train_level, memory_mode, device,
-        validation_split, validation_fold, loss_weights, sampler_weights, val_valid_ids={}, build_pairs=True, random_seed_folds=1610,
+    def __init__(self, datalocations, train_dataset_name, train_level, memory_mode, device,custom_split,
+        validation_split,validation_fold, loss_weights, sampler_weights, val_valid_ids={}, build_pairs=True, random_seed_folds=1610,
         index_permutation_feat=None, permutation_random_seed=42, remove_feat_idxs=None):
 
         self.device = device    
@@ -557,6 +558,21 @@ class MultiPatchDataset(torch.utils.data.Dataset):
                 
                 choice_val_c = validxs[validation_fold]
                 choice_hout_c = houtidxs[validation_fold]
+            elif custom_split == True: 
+                gdf = gpd.read_file(rs['shapefile_path'])
+                choice_val_f = gdf[gdf['is_train'] == True]['GID']
+                ind_val_f = np.zeros(len(tY_f), dtype=bool)
+                ind_val_f[choice_val_f] = True 
+                
+                choice_hout_f = np.array([], dtype=np.int64)
+                ind_hout_f = np.zeros(len(tY_f), dtype=bool)
+                ind_hout_f[choice_hout_f] = True 
+                
+                ind_val_hout_f = np.zeros(len(tY_f), dtype=bool)
+                ind_val_hout_f[choice_val_f] = True
+                ind_val_hout_f[choice_hout_f] = True
+                ind_train_f = ~ind_val_hout_f
+                
             else:
                 n_samples = len(tY_c)
                 split_int =int(len(tY_c)*validation_split)
@@ -594,11 +610,13 @@ class MultiPatchDataset(torch.utils.data.Dataset):
 
             # Prepare validation variables
             # If we took the coarse level as training, we need to translate the ind_val to the fine level and get the fine level patches for validation!
-            choice_val_f = np.where(np.in1d(self.memory_disag[name][0],tregid_val_c)[self.val_valid_ids[name]])[0] 
+            if custom_split == False:
+                choice_val_f = np.where(np.in1d(self.memory_disag[name][0],tregid_val_c)[self.val_valid_ids[name]])[0] 
             ind_val_f = np.zeros(len(tY_f), dtype=bool)
             ind_val_f[choice_val_f] = True 
             
-            choice_hout_f = np.where(np.in1d(self.memory_disag[name][0],tregid_hout_c)[self.val_valid_ids[name]])[0] 
+            if custom_split == False:
+                choice_hout_f = np.where(np.in1d(self.memory_disag[name][0],tregid_hout_c)[self.val_valid_ids[name]])[0] 
             ind_hout_f = np.zeros(len(tY_f), dtype=bool)
             ind_hout_f[choice_hout_f] = True 
             
