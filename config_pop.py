@@ -1,7 +1,7 @@
 import os
 
 # Define root path
-root_path = 'F:/pomelo/fake-pomelo/pomelo_input_data/'
+root_path = 'E:/fake-pomelo/pomelo_input_data/'
 # Input file definition
 input_paths = {
     "vnm": {

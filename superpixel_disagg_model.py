@@ -198,7 +198,7 @@ def prep_train_hdf5_file(training_source, h5_filename, var_filename, silent_mode
     # Iterate throuh the image an cut out examples
     tX,tY,tregid,tMasks,tregMasks,tBBox = [],[],[],[],[],[]
 
-    tr_features, tr_census, tr_regions, _, _, tr_guide_res, tr_valid_data_mask, level, feature_names = training_source
+    tr_features, tr_census, tr_regions, _, _, tr_guide_res, tr_valid_data_mask, level, feature_names, shapefile_path = training_source
     
     tr_regions = tr_regions.to(device)
     tr_valid_data_mask = tr_valid_data_mask.to(device)
@@ -232,7 +232,7 @@ def prep_train_hdf5_file(training_source, h5_filename, var_filename, silent_mode
 
     # write to disk
     with open(var_filename, 'wb') as handle:
-        pickle.dump([tr_census, tr_regions, tr_valid_data_mask, tY, tregid, tMasks, tregMasks, tBBox, feature_names], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([tr_census, tr_regions, tr_valid_data_mask, tY, tregid, tMasks, tregMasks, tBBox, feature_names, shapefile_path], handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     dim, h, w = tr_features.shape
     if not os.path.isfile(h5_filename):
@@ -372,7 +372,7 @@ def superpixel_with_pix_data(
     building_features = ['buildings', 'buildings_j', 'buildings_google', 'buildings_maxar', 'buildings_merge']
     related_building_features = ['buildings_google_mean_area', 'buildings_maxar_mean_area', 'buildings_merge_mean_area']
 
-    fine_train_source_vars = ["features", "fine_census", "fine_regions", "fine_map", "fine_map_full", "guide_res", "valid_data_mask", "fine", "feature_names"]
+    fine_train_source_vars = ["features", "fine_census", "fine_regions", "fine_map", "fine_map_full", "guide_res", "valid_data_mask", "fine", "feature_names", "shapefile_path"]
     cr_train_source_vars = ["features", "cr_census", "cr_regions", "cr_map", "cr_map_full", "guide_res", "valid_data_mask", "coarse", "feature_names"]
     fine_val_data_vars = ["features", "fine_census", "fine_regions", "fine_map", "fine_map_full", "valid_ids", "map_valid_ids", "guide_res",
                             "valid_data_mask", "geo_metadata", "cr_map", "cr_map_full"]
@@ -419,7 +419,6 @@ def superpixel_with_pix_data(
             Path(parent_dir).mkdir(parents=True, exist_ok=True)
 
             this_dataset = get_dataset(ds, params, building_features, related_building_features) 
-            shapefile_path = this_dataset['shapefile_path']
             prep_train_hdf5_file(build_variable_list(this_dataset, fine_train_source_vars), h5_filename, train_var_filename_f, silent_mode=silent_mode)
             prep_train_hdf5_file(build_variable_list(this_dataset, cr_train_source_vars), h5_filename, train_var_filename_c, silent_mode=silent_mode)
             
@@ -433,7 +432,7 @@ def superpixel_with_pix_data(
             del this_dataset 
 
         datalocations[ds] = {"features": h5_filename, "train_vars_f": train_var_filename_f, "train_vars_c": train_var_filename_c,
-            "eval_vars": eval_var_filename, "disag": eval_disag_filename, 'shapefile_path': shapefile_path}
+            "eval_vars": eval_var_filename, "disag": eval_disag_filename}
 
     if eval_5fold is None and eval_model is None:
         res, log_dict = PixAdminTransform(

@@ -1,33 +1,34 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "RWA superpixel_disagg_model.py",
+            "name": "VNM superpixel_disagg_model.py",
             "type": "python",
             "request": "launch",
             "program": "superpixel_disagg_model.py",
             "console": "integratedTerminal",
+            "python": "C:/Users/admin/miniforge3/envs/pomelo/python.exe",
             "env": {
                 "PYTHONPATH": "${workspaceRoot}",
-                "PYDEVD_WARN_EVALUATION_TIMEOUT": "500"},
+                "PYDEVD_WARN_EVALUATION_TIMEOUT": "500"
+            },
             "args": [
-                "-train", "rwa",
-                "-train_lvl", "c",
-                "-test", "rwa",
+                "-train", "vnm",
+                "-train_lvl", "f",
+                "-test", "vnm",
                 "-wr", "0.01",
-                "--dropout", "0.4", 
+                "--dropout", "0.4",
                 "-lstep", "800",
-                "--validation_fold", "0",
+                "-custom", "1",
                 "-rs", "42",
                 "-mm", "m",
+                "-adm_aug", "0",
                 "--loss", "LogL1",
-                "--dataset_dir", "datasets", 
+                "--dataset_dir", "datasets",
                 "--sampler", "custom",
-                "--max_step", "2000", 
-                "--name", "rwa_fine_vfold0"
+                "--max_step", "2000",
+                "--name", "vnm_Sample_18"
+                
             ]
         }
     ]

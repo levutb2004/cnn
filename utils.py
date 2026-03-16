@@ -476,7 +476,7 @@ class MultiPatchDataset(torch.utils.data.Dataset):
             map_valid_ids = create_map_of_valid_ids(fine_regions, no_valid_ids)
 
             with open(rs['train_vars_f'], "rb") as f:
-                _, _, _, tY_f, tregid_f, tMasks_f, tregMasks_f, tBBox_f, _ = pickle.load(f)
+                _, _, _, tY_f, tregid_f, tMasks_f, tregMasks_f, tBBox_f, _, shapefile_path = pickle.load(f)
             with open(rs['train_vars_c'], "rb") as f:
                 _, _, _, tY_c, tregid_c, tMasks_c, tregMasks_c, tBBox_c, feature_names = pickle.load(f)
 
@@ -559,8 +559,9 @@ class MultiPatchDataset(torch.utils.data.Dataset):
                 choice_val_c = validxs[validation_fold]
                 choice_hout_c = houtidxs[validation_fold]
             elif custom_split == True: 
-                gdf = gpd.read_file(rs['shapefile_path'])
-                choice_val_f = gdf[gdf['is_train'] == True]['GID']
+                gdf = gpd.read_file(shapefile_path)
+                train_array = gdf[gdf['is_train'] == True]['SID']
+                choice_val_f = gdf[gdf['is_train'] == True]['SID']
                 ind_val_f = np.zeros(len(tY_f), dtype=bool)
                 ind_val_f[choice_val_f] = True 
                 
