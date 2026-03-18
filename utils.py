@@ -532,59 +532,52 @@ class MultiPatchDataset(torch.utils.data.Dataset):
             # Validation split strategy:
             # We always split the coarse patches into 5 folds, then we look up fine patches that belong to those coarse validation patches
             np.random.seed(random_seed_folds)
-            if validation_fold is not None:
-                trainidxs, validxs, houtidxs = [],[],[]
+            if custom_split == True:
                 n_samples = len(tY_c)
-                n_splits = 5
-                for spl in range(n_splits):
+                orig_indices = np.arange(n_samples)
+                gdf = gpd.read_file(shapefile_path)
+                train_ids = gdf.loc[gdf['is_train'] == 1, 'GR_SID'].unique() - 1
+                train_mask = np.isin(orig_indices, train_ids)
+                choice_val_c = orig_indices[~train_mask]
+                choice_hout_c = np.array([], dtype=np.int64)
+            else:
+                if validation_fold is not None:
+                    trainidxs, validxs, houtidxs = [],[],[]
+                    n_samples = len(tY_c)
+                    n_splits = 5
+                    for spl in range(n_splits):
+                        orig_indices = np.arange(n_samples)
+                        np.random.shuffle(orig_indices)
+                        idx_offset = n_samples
+                        indices = np.concatenate((orig_indices, orig_indices, orig_indices))
+
+                        fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=int)
+                        fold_sizes[: n_samples % n_splits] += 1
+                        current = 0
+                        for fold_size in fold_sizes:
+                            val_start, val_stop = current, current + fold_size
+                            hout_start, hout_stop = current - fold_size, current
+                            train_start, train_stop = current + fold_size, current + fold_size * (n_splits - 2)
+                            
+                            trainidxs.append(indices[idx_offset+train_start:idx_offset+train_stop])
+                            validxs.append(indices[idx_offset+val_start:idx_offset+val_stop])
+                            houtidxs.append(indices[idx_offset+hout_start:idx_offset+hout_stop])
+                            
+                            current = val_stop
+                    
+                    choice_val_c = validxs[validation_fold]
+                    choice_hout_c = houtidxs[validation_fold]
+                else:
+                    n_samples = len(tY_c)
+                    split_int =int(len(tY_c)*validation_split)
                     orig_indices = np.arange(n_samples)
                     np.random.shuffle(orig_indices)
-                    idx_offset = n_samples
-                    indices = np.concatenate((orig_indices, orig_indices, orig_indices))
-
-                    fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=int)
-                    fold_sizes[: n_samples % n_splits] += 1
-                    current = 0
-                    for fold_size in fold_sizes:
-                        val_start, val_stop = current, current + fold_size
-                        hout_start, hout_stop = current - fold_size, current
-                        train_start, train_stop = current + fold_size, current + fold_size * (n_splits - 2)
-                        
-                        trainidxs.append(indices[idx_offset+train_start:idx_offset+train_stop])
-                        validxs.append(indices[idx_offset+val_start:idx_offset+val_stop])
-                        houtidxs.append(indices[idx_offset+hout_start:idx_offset+hout_stop])
-                        
-                        current = val_stop
+                    choice_val_c = orig_indices[:split_int]
+                    choice_hout_c = np.array([], dtype=np.int64)
+                    # no_holdout at this point, there is no case where we need a custom split and a non-zero length holdout
+                    # if validation_split > 0.0 and holdout:
+                    #     choice_hout_c = orig_indices[-split_int:]
                 
-                choice_val_c = validxs[validation_fold]
-                choice_hout_c = houtidxs[validation_fold]
-            elif custom_split == True: 
-                gdf = gpd.read_file(shapefile_path)
-                train_array = gdf[gdf['is_train'] == True]['SID']
-                choice_val_f = gdf[gdf['is_train'] == True]['SID']
-                ind_val_f = np.zeros(len(tY_f), dtype=bool)
-                ind_val_f[choice_val_f] = True 
-                
-                choice_hout_f = np.array([], dtype=np.int64)
-                ind_hout_f = np.zeros(len(tY_f), dtype=bool)
-                ind_hout_f[choice_hout_f] = True 
-                
-                ind_val_hout_f = np.zeros(len(tY_f), dtype=bool)
-                ind_val_hout_f[choice_val_f] = True
-                ind_val_hout_f[choice_hout_f] = True
-                ind_train_f = ~ind_val_hout_f
-                
-            else:
-                n_samples = len(tY_c)
-                split_int =int(len(tY_c)*validation_split)
-                orig_indices = np.arange(n_samples)
-                np.random.shuffle(orig_indices)
-                choice_val_c = orig_indices[:split_int]
-                choice_hout_c = np.array([], dtype=np.int64)
-                # no_holdout at this point, there is no case where we need a custom split and a non-zero length holdout
-                # if validation_split > 0.0 and holdout:
-                #     choice_hout_c = orig_indices[-split_int:]
-            
             ind_val_hout_c = np.zeros(len(tY_c), dtype=bool)
             ind_val_hout_c[choice_val_c] = True 
             # For the "ac" option the holdout can still be used in the training data
@@ -611,13 +604,12 @@ class MultiPatchDataset(torch.utils.data.Dataset):
 
             # Prepare validation variables
             # If we took the coarse level as training, we need to translate the ind_val to the fine level and get the fine level patches for validation!
-            if custom_split == False:
-                choice_val_f = np.where(np.in1d(self.memory_disag[name][0],tregid_val_c)[self.val_valid_ids[name]])[0] 
+
+            choice_val_f = np.where(np.in1d(self.memory_disag[name][0],tregid_val_c)[self.val_valid_ids[name]])[0] 
             ind_val_f = np.zeros(len(tY_f), dtype=bool)
             ind_val_f[choice_val_f] = True 
             
-            if custom_split == False:
-                choice_hout_f = np.where(np.in1d(self.memory_disag[name][0],tregid_hout_c)[self.val_valid_ids[name]])[0] 
+            choice_hout_f = np.where(np.in1d(self.memory_disag[name][0],tregid_hout_c)[self.val_valid_ids[name]])[0] 
             ind_hout_f = np.zeros(len(tY_f), dtype=bool)
             ind_hout_f[choice_hout_f] = True 
             
