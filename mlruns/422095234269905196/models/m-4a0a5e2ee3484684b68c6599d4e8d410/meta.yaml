@@ -1,0 +1,10 @@
+artifact_location: file:///E:/fake-pomelo/mlruns/422095234269905196/models/m-4a0a5e2ee3484684b68c6599d4e8d410/artifacts
+creation_timestamp: 1774010927050
+experiment_id: '422095234269905196'
+last_updated_timestamp: 1774010946799
+model_id: m-4a0a5e2ee3484684b68c6599d4e8d410
+model_type: null
+name: model
+source_run_id: 072c238e5ac14eee8ee2c67f06b1ffef
+status: 2
+status_message: null

@@ -478,7 +478,7 @@ class MultiPatchDataset(torch.utils.data.Dataset):
             with open(rs['train_vars_f'], "rb") as f:
                 _, _, _, tY_f, tregid_f, tMasks_f, tregMasks_f, tBBox_f, _, shapefile_path = pickle.load(f)
             with open(rs['train_vars_c'], "rb") as f:
-                _, _, _, tY_c, tregid_c, tMasks_c, tregMasks_c, tBBox_c, feature_names = pickle.load(f)
+                _, _, _, tY_c, tregid_c, tMasks_c, tregMasks_c, tBBox_c, feature_names, shapefile_path = pickle.load(f)
 
             self.feature_names[name] = feature_names
             # print("After loading trainvars",process.memory_info().rss/1000/1000,"mb used")

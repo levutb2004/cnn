@@ -1,0 +1,14 @@
+artifact_uri: file:///E:/fake-pomelo/mlruns/422095234269905196/f1e3be6c70de43e2850c7fc2f07c9f66/artifacts
+end_time: 1773993393004
+entry_point_name: ''
+experiment_id: '422095234269905196'
+lifecycle_stage: active
+run_id: f1e3be6c70de43e2850c7fc2f07c9f66
+run_name: test
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1773993387881
+status: 4
+tags: []
+user_id: admin

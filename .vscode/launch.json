@@ -14,7 +14,7 @@
             },
             "args": [
                 "-train", "vnm",
-                "-train_lvl", "f",
+                "-train_lvl", "c",
                 "-test", "vnm",
                 "-wr", "0.01",
                 "--dropout", "0.4",
@@ -22,7 +22,6 @@
                 "-custom", "1",
                 "-rs", "42",
                 "-mm", "m",
-                "-adm_aug", "0",
                 "--loss", "LogL1",
                 "--dataset_dir", "datasets",
                 "--sampler", "custom",
