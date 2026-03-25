@@ -535,7 +535,7 @@ metadata = {
         "wp_covariates_no_data": 0,
         "hd_no_data": [0],
         "scale_maxar_to_google": None,
-        "preproc_data_path": f'{root_path}VNM_Sample_18/preprocessed_census_data_vnm.pkl',
+        "preproc_data_path": f'{root_path}VNM_Sample_1/preprocessed_census_data_vnm.pkl',
         "rst_wp_regions_path": f'{root_path}VNM/vnm_wpop_regions.tif'
     },
     "tza": {
