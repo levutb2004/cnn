@@ -1,5 +1,5 @@
 import pickle
-shp_url = 'E:/fake-pomelo/pomelo_input_data/VNM_Sample_16/Sample_16.shp'
+shp_url = 'E:/fake-pomelo/pomelo_input_data/VNM_Sample_10/Sample_10.shp'
 
 with open(r"E:\fake-pomelo\datasets\vnm\additional_train_vars_c.pkl", "rb") as f:
     data = pickle.load(f)

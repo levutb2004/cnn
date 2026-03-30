@@ -33,3 +33,5 @@ python superpixel_disagg_model.py -train vnm -train_lvl f -test vnm -wr 0.01 --d
 python superpixel_disagg_model.py -train vnm -train_lvl f -test vnm -wr 0.01 --dropout 0.4 -lstep 800 --validation_fold 3 -rs 42 -mm m --loss LogL1 --dataset_dir datasets --sampler custom --max_step 150000 --name vnm_fine_vfold3
 python superpixel_disagg_model.py -train vnm -train_lvl f -test vnm -wr 0.01 --dropout 0.4 -lstep 800 --validation_fold 4 -rs 42 -mm m --loss LogL1 --dataset_dir datasets --sampler custom --max_step 150000 --name vnm_fine_vfold4
 python superpixel_disagg_model.py -train vnm -train_lvl c -test vnm -wr 0.01 --dropout 0.4 -lstep 800  -rs 42 -mm m --loss LogL1 --dataset_dir datasets --sampler custom --max_step 100000 --name vnm_coarse
+
+current shapefile path: sample 10
