@@ -533,6 +533,7 @@ class MultiPatchDataset(torch.utils.data.Dataset):
             # We always split the coarse patches into 5 folds, then we look up fine patches that belong to those coarse validation patches
             np.random.seed(random_seed_folds)
             if custom_split == True:
+                print(shapefile_path)
                 n_samples = len(tY_c)
                 orig_indices = np.arange(n_samples)
                 gdf = gpd.read_file(shapefile_path)
