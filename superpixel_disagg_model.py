@@ -211,16 +211,6 @@ def prep_train_hdf5_file(training_source, h5_filename, var_filename, silent_mode
         rmin, rmax, cmin, cmax = boundingbox
         tY.append(np.asarray(tr_census[regid]))
         tregid.append(np.asarray(regid))
-        #tMask = mask[rmin:rmax, cmin:cmax].cpu().numpy()
-        #tregMask = regmask[rmin:rmax, cmin:cmax].cpu().numpy()
-        #with open(f'E:/fake-pomelo/datasets/rwa/tMask.pkl', 'wb') as f:
-            #pickle.dump(tMask, f, protocol=pickle.HIGHEST_PROTOCOL)
-        #with open(f'E:/fake-pomelo/datasets/rwa/tregMask.pkl', 'wb') as f:
-            #pickle.dump(tregMask, f, protocol=pickle.HIGHEST_PROTOCOL)
-        #with open(f'E:/fake-pomelo/datasets/rwa/tMask.pkl', 'rb') as f:
-            #tMasks.append(pickle.load(f)[0])
-        #with open(f'E:/fake-pomelo/datasets/rwa/tregMask.pkl', 'rb') as f:
-            #tregMasks.append(pickle.load(f)[0])
         tMasks.append(mask[rmin:rmax, cmin:cmax].cpu().numpy())
         tregMasks.append(regmask[rmin:rmax, cmin:cmax].cpu().numpy())
         boundingbox = [rmin.cpu(), rmax.cpu(), cmin.cpu(), cmax.cpu()]
