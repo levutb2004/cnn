@@ -250,6 +250,9 @@ def PixAdminTransform(
                                     # Forward every validation patch and collect results
                                     for idx in tqdm(range(len(dataset.Ys_val[name])), disable=params["silent_mode"]):
                                         X, Y, Mask, name, census_id = dataset.get_single_validation_item(idx, name) 
+                                        if Mask.sum() == 0:
+                                            logging.warning(f"Skipping empty-mask patch idx={idx} name={name} census_id={census_id} X.shape={X.shape} Mask.shape={Mask.shape}")
+                                            continue
                                         pred = mynet.forward(X, Mask, name=name, forward_only=True).detach().cpu().numpy()
                                         agg_preds.append(pred)
                                         val_census.append(Y.cpu().numpy())

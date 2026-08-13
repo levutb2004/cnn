@@ -47,7 +47,6 @@ def get_dataset(dataset_name, params, building_features, related_building_featur
     geo_metadata = pdata["geo_metadata"]
     areas = pdata["areas"]
     shapefile_path = pdata["shapefile_path"]
-    print(rst_wp_regions_path)
     fine_regions = gdal.Open(rst_wp_regions_path).ReadAsArray().astype(np.uint32)
     wp_ids = list(np.unique(fine_regions)) 
     fine_area = dict(zip(wp_ids, areas))
@@ -116,14 +115,15 @@ def get_dataset(dataset_name, params, building_features, related_building_featur
                 # normalize by known mean and std
                 features[i] = (features[i] - cfg.norms[dataset_name][name][0]) / cfg.norms[dataset_name][name][1]
             else:
+                print(name)
                 raise Exception("Did not find precalculated mean and std")
                 
     # features = torch.cat(features, 0)
     features = torch.from_numpy(features)
 
     # this_mask = features[0]!=no_data_values[name]
-    if params["Net"]=='ScaleNet':
-        valid_data_mask *= features[0]>0
+    #if params["Net"]=='ScaleNet':
+        #valid_data_mask *= features[0]>0
 
     guide_res = features.shape[1:3]
 
@@ -187,7 +187,6 @@ def get_dataset(dataset_name, params, building_features, related_building_featur
         "coarse": "coarse",
         "shapefile_path": shapefile_path
     }
-    print('got ' + dataset_name)
     return dataset
 
 
@@ -215,7 +214,7 @@ def prep_train_hdf5_file(training_source, h5_filename, var_filename, silent_mode
         tregMasks.append(regmask[rmin:rmax, cmin:cmax].cpu().numpy())
         boundingbox = [rmin.cpu(), rmax.cpu(), cmin.cpu(), cmax.cpu()]
         tBBox.append(boundingbox)
-        print(regid)
+
         
     tr_regions = tr_regions.cpu()
     tr_valid_data_mask = tr_valid_data_mask.cpu().numpy()

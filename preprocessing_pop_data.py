@@ -102,7 +102,10 @@ def compute_agg_features_from_raster(regions, inputs, no_data_vals=None, buildin
     built_up_areas = None
     if buildings_mask is not None:
        masked_map_valid_ids = np.multiply(map_valid_ids, buildings_mask).astype(np.uint32)
-       built_up_areas = compute_area_of_regions(regions, masked_map_valid_ids, num_ids)
+    else: 
+       masked_map_valid_ids = map_valid_ids
+       built_up_areas = areas
+
     
     features_arr = []
     masked_features_arr = []
@@ -112,17 +115,15 @@ def compute_agg_features_from_raster(regions, inputs, no_data_vals=None, buildin
         accumulated_features = compute_accumulated_values_by_region(regions, input, map_valid_ids, num_ids)
         features_arr.append(accumulated_features)
         
-        if buildings_mask is not None:
-            masked_map_valid_ids = np.multiply(map_valid_ids, buildings_mask).astype(np.uint32)
-            accumulated_masked_features = compute_accumulated_values_by_region(regions, input, masked_map_valid_ids, num_ids)
-            masked_features_arr.append(accumulated_masked_features)    
+        masked_map_valid_ids = map_valid_ids
+        accumulated_masked_features = compute_accumulated_values_by_region(regions, input, masked_map_valid_ids, num_ids)
+        masked_features_arr.append(accumulated_masked_features)    
 
     features_arr = np.array(features_arr).astype(np.float32)
     features_arr = features_arr.transpose()
     
-    if buildings_mask is not None:
-        masked_features_arr = np.array(masked_features_arr).astype(np.float32)
-        masked_features_arr = masked_features_arr.transpose()
+    masked_features_arr = np.array(masked_features_arr).astype(np.float32)
+    masked_features_arr = masked_features_arr.transpose()
 
     features = {id: {} for id in range(num_ids)}
     masked_features = {id: {} for id in range(num_ids)}
@@ -152,13 +153,16 @@ def compute_agg_features_from_raster(regions, inputs, no_data_vals=None, buildin
 
 
 def preprocessing_pop_data(hd_regions_path, rst_hd_regions_path, rst_wp_regions_path,
-                           census_data_path, output_path, dataset_name, target_col):
+                           census_data_path, output_path, dataset_name, target_col, building_mask=False):
     # Read input data
     input_paths = cfg.input_paths[dataset_name]
     metadata = cfg.metadata[dataset_name]
     inputs = read_input_raster_data(input_paths)
-    buildings = inputs["buildings"]
-    buildings_mask = buildings > 0
+    if building_mask:
+        buildings = inputs["buildings"]
+        buildings_mask = buildings > 0
+    else:
+        buildings_mask = None
     hd_regions = read_shape_layer_data(hd_regions_path)
     all_census = read_multiple_targets_from_csv(census_data_path)
     print("census_data size {}".format(len(all_census.keys())))
@@ -298,6 +302,7 @@ def main():
     parser.add_argument("output_path", type=str, help="Output path")
     parser.add_argument("dataset_name", type=str, help="Dataset name")
     parser.add_argument("target_col", type=str, help="Target column")
+    parser.add_argument("--building_mask",type = bool,default=False,help="Use building raster as mask when computing built-up areas and features" )
     args = parser.parse_args()
 
     preprocessing_pop_data(args.hd_regions_path, args.rst_hd_regions_path,

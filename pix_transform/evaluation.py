@@ -199,6 +199,9 @@ def eval_my_model(mynet, guide_img, valid_mask, validation_regions,
             agg_preds_arr = torch.zeros((dataset.max_tregid[dataset_name]+1,))
             for idx in tqdm(range(dataset.len_all_samples(dataset_name)), disable=silent_mode):
                 X, Y, Mask, name, census_id = dataset.get_single_item(idx, dataset_name) 
+                if Mask.sum() == 0:
+                    logging.warning(f"Skipping empty-mask patch idx={idx} name={name} census_id={census_id} X.shape={X.shape} Mask.shape={Mask.shape}")
+                    continue
                 prediction = mynet.forward(X, Mask, name=name, forward_only=True).detach().cpu().numpy()
 
                 if isinstance(prediction, np.ndarray) and prediction.shape.__len__()==1:
